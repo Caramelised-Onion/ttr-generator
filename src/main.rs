@@ -95,9 +95,9 @@ fn plot_cities(cities: &Vec<CitySimple>) {
             cities
                 .iter()
                 .map(|c| {
-                    EmptyElement::at((c.lat, c.lng))
-                        + Circle::new((0, 0), size, style)
-                        + Text::new(format!("{:?}", coord), (0, 15), ("sans-serif", 15))
+                    EmptyElement::at((c.lng, c.lat))
+                        + Circle::new((0, 0), 3, ShapeStyle::from(&BLACK).filled())
+                        + Text::new(c.name.to_string(), (0, 15), ("sans-serif", 15))
                 }),
         )
         .expect("Failed to make graphic");
