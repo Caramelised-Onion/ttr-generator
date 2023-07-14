@@ -65,18 +65,41 @@ fn plot_cities(cities: &Vec<CitySimple>) {
 
     drawing_area.fill(&WHITE).unwrap();
 
-    let min_x = cities.iter().min_by_key(|c| (c.lng * 10_000.0) as usize).unwrap().lng;
-    let max_x = cities.iter().max_by_key(|c| (c.lng * 10_000.0) as usize).unwrap().lng;
-    let min_y = cities.iter().min_by_key(|c| (c.lat * 10_000.0) as usize).unwrap().lat;
-    let max_y = cities.iter().max_by_key(|c| (c.lat * 10_000.0) as usize).unwrap().lat;
+    let min_x = cities
+        .iter()
+        .min_by_key(|c| (c.lng * 10_000.0) as usize)
+        .unwrap()
+        .lng;
+    let max_x = cities
+        .iter()
+        .max_by_key(|c| (c.lng * 10_000.0) as usize)
+        .unwrap()
+        .lng;
+    let min_y = cities
+        .iter()
+        .min_by_key(|c| (c.lat * 10_000.0) as usize)
+        .unwrap()
+        .lat;
+    let max_y = cities
+        .iter()
+        .max_by_key(|c| (c.lat * 10_000.0) as usize)
+        .unwrap()
+        .lat;
 
     let mut chart = ChartBuilder::on(&drawing_area)
         .build_cartesian_2d(min_x..max_x, min_y..max_y)
         .unwrap();
 
-    chart.draw_series(
-        cities
-            .iter()
-            .map(|c| Circle::new((c.lng, c.lat), 3, ShapeStyle::from(&BLACK).filled())),
-    ).expect("Failed to make graphic");
+    chart
+        .draw_series(
+            cities
+                .iter()
+                .map(|c| {
+                    EmptyElement::at((c.lat, c.lng))
+                        + Circle::new((0, 0), size, style)
+                        + Text::new(format!("{:?}", coord), (0, 15), ("sans-serif", 15))
+                }),
+        )
+        .expect("Failed to make graphic");
+
 }
