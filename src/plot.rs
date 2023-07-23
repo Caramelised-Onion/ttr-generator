@@ -3,7 +3,7 @@ use plotters::prelude::*;
 use crate::models::CitySimple;
 
 pub fn plot_cities(cities: &Vec<CitySimple>) {
-    let drawing_area = BitMapBackend::new("ttr.png", (600, 400)).into_drawing_area();
+    let drawing_area = BitMapBackend::new("ttr.png", (800, 900)).into_drawing_area();
 
     drawing_area.fill(&WHITE).unwrap();
 
