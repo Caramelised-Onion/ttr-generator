@@ -9,22 +9,22 @@ pub fn plot_cities(cities: &Vec<CitySimple>) {
 
     let min_x = cities
         .iter()
-        .min_by_key(|c| (c.lng * 10_000.0) as usize)
+        .min_by_key(|c| (c.lng * 10_000.0) as isize)
         .unwrap()
         .lng;
     let max_x = cities
         .iter()
-        .max_by_key(|c| (c.lng * 10_000.0) as usize)
+        .max_by_key(|c| (c.lng * 10_000.0) as isize)
         .unwrap()
         .lng;
     let min_y = cities
         .iter()
-        .min_by_key(|c| (c.lat * 10_000.0) as usize)
+        .min_by_key(|c| (c.lat * 10_000.0) as isize)
         .unwrap()
         .lat;
     let max_y = cities
         .iter()
-        .max_by_key(|c| (c.lat * 10_000.0) as usize)
+        .max_by_key(|c| (c.lat * 10_000.0) as isize)
         .unwrap()
         .lat;
 
