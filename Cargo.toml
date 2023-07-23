@@ -11,3 +11,4 @@ cities-common = { path = "../cities-common"}
 cities-client = { path = "../cities-client"}
 tokio = { version = "1.0", features = ["full"] }
 plotters = "0.3.3"
+regex = "1.9.1"

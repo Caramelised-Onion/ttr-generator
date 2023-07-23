@@ -1,6 +1,10 @@
+mod wktparse;
+
 use cities_common::{models::City, queries::SortOrder};
 use clap::Parser;
 use plotters::prelude::*;
+
+use crate::wktparse::lng_lat_pairs_from_multipolygon;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -11,6 +15,7 @@ struct Args {
     num_cities: usize,
 }
 
+#[derive(Debug)]
 struct CitySimple {
     name: String,
     lat: f64,
@@ -37,6 +42,20 @@ async fn main() {
 
     let cities_to_plot =
         get_most_populated_cities_in_country(&client, &args.country, args.num_cities).await;
+
+    let country_outline = client.get_country_outline(args.country).await;
+
+    match country_outline {
+        Ok(outline) => {
+            println!("{}", outline);
+            let lng_lat_pairs = lng_lat_pairs_from_multipolygon(&outline);
+            println!("{:?}", lng_lat_pairs);
+        }
+        Err(err) => {
+            println!("{}", err);
+        }
+    }
+
     plot_cities(&cities_to_plot);
 }
 
@@ -91,15 +110,10 @@ fn plot_cities(cities: &Vec<CitySimple>) {
         .unwrap();
 
     chart
-        .draw_series(
-            cities
-                .iter()
-                .map(|c| {
-                    EmptyElement::at((c.lng, c.lat))
-                        + Circle::new((0, 0), 3, ShapeStyle::from(&BLACK).filled())
-                        + Text::new(c.name.to_string(), (0, 15), ("sans-serif", 15))
-                }),
-        )
+        .draw_series(cities.iter().map(|c| {
+            EmptyElement::at((c.lng, c.lat))
+                + Circle::new((0, 0), 3, ShapeStyle::from(&BLACK).filled())
+                + Text::new(c.name.to_string(), (0, 15), ("sans-serif", 15))
+        }))
         .expect("Failed to make graphic");
-
 }
