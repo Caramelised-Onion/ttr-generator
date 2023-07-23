@@ -12,3 +12,5 @@ cities-client = { path = "../cities-client"}
 tokio = { version = "1.0", features = ["full"] }
 plotters = "0.3.3"
 regex = "1.9.1"
+geo = "0.26.0"
+geo-types = "0.7.11"
