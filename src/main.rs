@@ -1,10 +1,12 @@
+mod geoquery;
+mod models;
+mod plot;
 mod wktparse;
+mod distribution;
 
-use cities_common::{models::City, queries::SortOrder};
+use crate::plot::plot_cities;
 use clap::Parser;
-use plotters::prelude::*;
-
-use crate::wktparse::lng_lat_pairs_from_multipolygon;
+use geoquery::get_most_populated_cities_in_country;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -15,105 +17,14 @@ struct Args {
     num_cities: usize,
 }
 
-#[derive(Debug)]
-struct CitySimple {
-    name: String,
-    lat: f64,
-    lng: f64,
-}
-
-impl CitySimple {
-    fn from_city(city: &City) -> Self {
-        CitySimple {
-            name: city.name.clone(),
-            lat: city.lat,
-            lng: city.lng,
-        }
-    }
-}
-
 const BASE_URL: &str = "http://localhost:3000";
 
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-
     let client = cities_client::client::Client::new(BASE_URL);
-
     let cities_to_plot =
         get_most_populated_cities_in_country(&client, &args.country, args.num_cities).await;
 
-    let country_outline = client.get_country_outline(args.country).await;
-
-    match country_outline {
-        Ok(outline) => {
-            println!("{}", outline);
-            let lng_lat_pairs = lng_lat_pairs_from_multipolygon(&outline);
-            println!("{:?}", lng_lat_pairs);
-        }
-        Err(err) => {
-            println!("{}", err);
-        }
-    }
-
     plot_cities(&cities_to_plot);
-}
-
-async fn get_most_populated_cities_in_country(
-    client: &cities_client::client::Client,
-    country_iso: &str,
-    num_cities: usize,
-) -> Vec<CitySimple> {
-    let cities_query = cities_common::queries::CitiesQuery {
-        country: Some(country_iso.to_string()),
-        sort_by_population: Some(SortOrder::DESC),
-        limit: Some(num_cities),
-        ..Default::default()
-    };
-    client
-        .get_cities(&cities_query)
-        .await
-        .expect("failed to call cities api or something")
-        .iter()
-        .map(|c| CitySimple::from_city(c))
-        .collect()
-}
-
-fn plot_cities(cities: &Vec<CitySimple>) {
-    let drawing_area = BitMapBackend::new("ttr.png", (600, 400)).into_drawing_area();
-
-    drawing_area.fill(&WHITE).unwrap();
-
-    let min_x = cities
-        .iter()
-        .min_by_key(|c| (c.lng * 10_000.0) as usize)
-        .unwrap()
-        .lng;
-    let max_x = cities
-        .iter()
-        .max_by_key(|c| (c.lng * 10_000.0) as usize)
-        .unwrap()
-        .lng;
-    let min_y = cities
-        .iter()
-        .min_by_key(|c| (c.lat * 10_000.0) as usize)
-        .unwrap()
-        .lat;
-    let max_y = cities
-        .iter()
-        .max_by_key(|c| (c.lat * 10_000.0) as usize)
-        .unwrap()
-        .lat;
-
-    let mut chart = ChartBuilder::on(&drawing_area)
-        .build_cartesian_2d(min_x..max_x, min_y..max_y)
-        .unwrap();
-
-    chart
-        .draw_series(cities.iter().map(|c| {
-            EmptyElement::at((c.lng, c.lat))
-                + Circle::new((0, 0), 3, ShapeStyle::from(&BLACK).filled())
-                + Text::new(c.name.to_string(), (0, 15), ("sans-serif", 15))
-        }))
-        .expect("Failed to make graphic");
 }
