@@ -1,14 +1,12 @@
+mod distribution;
 mod geoquery;
 mod models;
 mod plot;
 mod wktparse;
-mod distribution;
 
 use crate::plot::plot_cities;
 use clap::Parser;
-use geoquery::get_most_populated_cities_in_country;
-use distribution::filter_out_cities_too_close;
-
+use geoquery::get_ttr_cities;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -25,10 +23,7 @@ const BASE_URL: &str = "http://localhost:3000";
 async fn main() {
     let args = Args::parse();
     let client = cities_client::client::Client::new(BASE_URL);
-    let cities_to_plot =
-        get_most_populated_cities_in_country(&client, &args.country, args.num_cities).await;
+    let cities = get_ttr_cities(&client, &args.country, args.num_cities).await;
 
-    let filter_cities = filter_out_cities_too_close(cities_to_plot, 0.5);
-
-    plot_cities(&filter_cities);
+    plot_cities(&cities);
 }
