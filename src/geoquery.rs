@@ -49,6 +49,6 @@ async fn get_most_populated_cities_in_country_not_in_forbidden_area(
         .await
         .expect("failed to call cities api or something")
         .iter()
-        .map(|c| CitySimple::from_city(c))
+        .map(CitySimple::from_city)
         .collect()
 }

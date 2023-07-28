@@ -2,7 +2,6 @@ mod distribution;
 mod geoquery;
 mod models;
 mod plot;
-mod wktparse;
 
 use crate::plot::plot_cities;
 use clap::Parser;

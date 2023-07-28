@@ -1,7 +1,7 @@
 use std::f64::consts::PI;
 
 use geo::Intersects;
-use geo_types::{coord, polygon, Coord, LineString, MultiPolygon, Point, Polygon};
+use geo_types::{coord, LineString, MultiPolygon, Point, Polygon};
 
 use crate::models::CitySimple;
 
