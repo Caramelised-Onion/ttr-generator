@@ -3,6 +3,9 @@ use cities_common::queries::SortOrder;
 use geo_types::{Geometry, MultiPolygon};
 use geozero::ToWkt;
 
+/// 1. get top X cities
+/// 2. Init Forbidden Area
+/// 3. Add city and add a surroudning area of it to forbidden cities if a buffer around city does not intersect with forbidden areas
 pub async fn get_ttr_cities(
     client: &cities_client::client::Client,
     country_iso: &str,
@@ -16,11 +19,13 @@ pub async fn get_ttr_cities(
             country_iso,
             num_cities - cities.len(),
             forbidden_area.clone(),
-        ).await;
-        let (filtered_cities, added_forbidden_area) = filter_out_cities_too_close(unfiltered_cities, 2.5);
+        )
+        .await;
+        let (filtered_cities, added_forbidden_area) =
+            filter_out_cities_too_close(unfiltered_cities, 2.5);
         forbidden_area.0.extend(added_forbidden_area);
         cities.extend(filtered_cities);
-    }    
+    }
     cities
 }
 

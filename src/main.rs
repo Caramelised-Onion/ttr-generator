@@ -1,3 +1,4 @@
+mod country;
 mod distribution;
 mod geoquery;
 mod models;
@@ -23,6 +24,10 @@ async fn main() {
     let args = Args::parse();
     let client = cities_client::client::Client::new(BASE_URL);
     let cities = get_ttr_cities(&client, &args.country, args.num_cities).await;
+    let country_outline_wkt = client
+        .get_country_outline(args.country)
+        .await
+        .expect("Could not get ountry outline from API");
 
     plot_cities(&cities);
 }

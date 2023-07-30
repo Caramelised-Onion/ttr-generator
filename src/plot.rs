@@ -1,6 +1,6 @@
 use plotters::prelude::*;
 
-use crate::models::CitySimple;
+use crate::{country::get_largest_polygon, models::CitySimple};
 
 pub fn plot_cities(cities: &[CitySimple]) {
     let drawing_area = BitMapBackend::new("ttr.png", (1500, 900)).into_drawing_area();
@@ -39,4 +39,15 @@ pub fn plot_cities(cities: &[CitySimple]) {
                 + Text::new(c.name.to_string(), (0, 15), ("sans-serif", 15))
         }))
         .expect("Failed to make graphic");
+}
+
+pub fn plot_country_wkt(country_wkt: String) {
+    let largest_polygon = get_largest_polygon(&country_wkt)
+        .expect("Could not find the largest polygon from this wkt representation");
+
+    // Next:
+    // 1. Get Vector of pairs
+    // 2. Get min and max x and y values
+    // 3. Calculate Aspect Ratio
+    // 4. Use Aspect Ratio to determine chart size and plot the outline
 }
