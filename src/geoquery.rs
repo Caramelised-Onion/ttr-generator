@@ -22,7 +22,7 @@ pub async fn get_ttr_cities(
         )
         .await;
         let (filtered_cities, added_forbidden_area) =
-            filter_out_cities_too_close(unfiltered_cities, 2.5);
+            filter_out_cities_too_close(unfiltered_cities, 0.5);
         forbidden_area.0.extend(added_forbidden_area);
         cities.extend(filtered_cities);
     }

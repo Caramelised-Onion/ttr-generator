@@ -7,6 +7,7 @@ mod plot;
 use crate::plot::plot_cities;
 use clap::Parser;
 use geoquery::get_ttr_cities;
+use plot::plot_country_wkt;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -23,11 +24,14 @@ const BASE_URL: &str = "http://localhost:3000";
 async fn main() {
     let args = Args::parse();
     let client = cities_client::client::Client::new(BASE_URL);
-    let cities = get_ttr_cities(&client, &args.country, args.num_cities).await;
+    // let cities = get_ttr_cities(&client, &args.country, args.num_cities).await;
     let country_outline_wkt = client
         .get_country_outline(args.country)
         .await
         .expect("Could not get ountry outline from API");
 
-    plot_cities(&cities);
+    println!("wkt\n{}", country_outline_wkt);
+
+    // plot_cities(&cities);
+    plot_country_wkt(country_outline_wkt);
 }
