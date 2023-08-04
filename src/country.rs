@@ -37,4 +37,3 @@ fn find_largest_polygon(mp: &MultiPolygon<f64>) -> Option<Polygon<f64>> {
 
     largest_polygon.cloned()
 }
-
