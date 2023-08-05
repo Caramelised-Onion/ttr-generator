@@ -5,10 +5,10 @@ use geozero::ToWkt;
 
 /// 1. get top X cities
 /// 2. Init Forbidden Area
-/// 3. Add city and add a surroudning area of it to forbidden cities if a buffer around city does not intersect with forbidden areas
+/// 3. Add city and add a surrounding area of it to forbidden cities if a buffer around city does not intersect with forbidden areas
 pub async fn get_ttr_cities(
     client: &cities_client::client::Client,
-    country_iso: &str,
+    country_outline_wkt: &str,
     num_cities: usize,
 ) -> Vec<CitySimple> {
     let mut cities = vec![];
@@ -16,7 +16,7 @@ pub async fn get_ttr_cities(
     while cities.len() < num_cities {
         let unfiltered_cities = get_most_populated_cities_in_country_not_in_forbidden_area(
             client,
-            country_iso,
+            country_outline_wkt,
             num_cities - cities.len(),
             forbidden_area.clone(),
         )
@@ -31,7 +31,7 @@ pub async fn get_ttr_cities(
 
 async fn get_most_populated_cities_in_country_not_in_forbidden_area(
     client: &cities_client::client::Client,
-    country_iso: &str,
+    country_outline_wkt: &str,
     num_cities: usize,
     forbidden_area: MultiPolygon<f64>,
 ) -> Vec<CitySimple> {
@@ -43,7 +43,7 @@ async fn get_most_populated_cities_in_country_not_in_forbidden_area(
     }
 
     let cities_query = cities_common::queries::CitiesQuery {
-        country: Some(country_iso.to_string()),
+        geometry_in: Some(country_outline_wkt.to_string()),
         geometry_out: geom_out_q,
         sort_by_population: Some(SortOrder::DESC),
         limit: Some(num_cities),
