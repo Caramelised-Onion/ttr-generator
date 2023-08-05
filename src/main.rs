@@ -4,9 +4,11 @@ mod geoquery;
 mod models;
 mod plot;
 
-use crate::plot::plot_cities;
 use clap::Parser;
+use country::get_largest_polygon;
+use geo_types::Geometry;
 use geoquery::get_ttr_cities;
+use geozero::ToWkt;
 use plot::plot_gameboard;
 
 #[derive(Parser)]
@@ -24,15 +26,17 @@ const BASE_URL: &str = "http://localhost:3000";
 async fn main() {
     let args = Args::parse();
     let client = cities_client::client::Client::new(BASE_URL);
-    let cities = get_ttr_cities(&client, &args.country, args.num_cities).await;
     let country_outline_wkt = client
         .get_country_outline(args.country)
         .await
         .expect("Could not get ountry outline from API");
+    let largest_polygon = get_largest_polygon(&country_outline_wkt)
+        .expect("Could not get the largest polygon from the country outline wkt");
+    let largest_polygon_geom: Geometry<f64> = largest_polygon.clone().into();
+    let largest_polygon_wkt = largest_polygon_geom.to_wkt()
+        .expect("Could not parse geometry into wkt");
 
-    println!("wkt\n{}", country_outline_wkt);
+    let cities = get_ttr_cities(&client, &largest_polygon_wkt, args.num_cities).await;
 
-    // plot_cities(&cities);
-    // plot_country_wkt(country_outline_wkt);
-    plot_gameboard(country_outline_wkt, &cities)
+    plot_gameboard(largest_polygon, &cities);
 }
